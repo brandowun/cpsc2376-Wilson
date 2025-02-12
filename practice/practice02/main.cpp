@@ -1,86 +1,89 @@
-///Single C++ file(main.cpp), bank account, balance persistently stored in file
-///Program features///
-/// 1. balance file name - account_balance.txt
-/// 2. On startup, if account_balance.txt doesn't exist, create it, and set balance to $100.00
-/// 3. If file exist, read current file
-/// 4.You should be able to
-///     Check balance
-///     Deposit money (must be positive amount)
-///     Withdraw (cannot exceed the current balance or be negative)
-///     Update .txt after every transaction
-///
-/// Ensure files handled securely and gracefully.
-///     if it can't be opened, display error message and exit
-///     validate all user inputs
-///     Deposits must be positive values
-///     With drawls must not exceed the current balance and must be positive values.
-///     Show a menu, user can use
-///
-///     Turning in
-///      Place the program in your Git repository under the practice/practice02 folder.
-///      file should be named main.cpp
-///
-///
-///     Tips
-///     Use functions to organize your code(checkBalance,deposit,withdraw,readBalanceFromFile, writeBalanceToFile
-///     when handling money (use std::fixed and stt::setprecision from <iomainip> to display balance with 2 decimal places.
-///     Verify all edge cases are handled, invalid inputs, missing file, simultaneous read/write operations).
-///
-///
-///1.what functions will i need
-///2.create file
-///3.make a menu
-///     1.check the balance
-///     2.deposit (maybe make a cash option and credit card option)
-///     3. withdraw
-///     4. exit
-///4. Check if there is a file and if not make one
-///5.(learn cerr) for issues with file
-///6. work on functions
-///    1.read the balance
-///     2.write the balance
-///     3.check balance
-///     4.deposit
-///     5.withdrawl
-///     6. Make an interest rate (if time is possible)
-///     7. Make a debt part that you could borrow money from and pay via the menu
-///     8. Add interest to the debt which increase how much you owe (based on timeframe)(every 30 days maybe)
-///7. Check edge casings
-
 #include <iostream>
 #include <fstream>
-#include <iomainip>
+#include <iomanip>
+#include <cstdio>
 
 using namespace std;
+
 
 //functions I know I need
 double readBalanceFromFile();
 void writeBalanceToFile(double balance);
 void checkBalance(double balance);
-void deposit(double balance);
-void withdraw(double balance);
+void deposit(double &balance);
+void withdraw(double &balance);
 
-// File creation
+
+//File creation
 const string fileName = "account_balance.txt";
 const double initialBalance = 100.00;
 
+
+//Make a pin
+bool pin() {
+    string userPin = "123";
+    string pinInput;
+    cout << "Welcome to the bank" << endl;
+    while (pinInput != userPin){
+        cout << "The pin is 123" << endl;
+
+        cout << "Enter Pin: ";
+        cin >> pinInput;
+
+        if (pinInput == userPin) {
+            return true;
+        } else {
+            cout << "Incorrect PIN.\n";
+        }
+    }
+}
+double readBalanceFromFile(){
+    ifstream file(fileName);
+    double balance = initialBalance;
+
+    //Chatgpt assisted on this, never created a file before and also never seen cern before
+    if (file) {
+      file >> balance;
+    }
+    else {
+        ofstream newFile(fileName);
+        if (!newFile) {
+        cerr << "Error: Unable to create balance file." << endl;
+        exit(1);
+        }
+        newFile << fixed << setprecision(2) << initialBalance;
+    }
+    return balance;
+}
+// end of assistance
+
 int main (){
-    
-    //introduction
-    cout << "Welcome to your Bank Account" << endl;
+    if (!pin()) {
+        return 0;}
+
+    double balance = readBalanceFromFile();
+    cout << fixed << setprecision(2);
 
     int choice;
-//display menu
+// display menu
     do {
-        cout << "\nMenu" << endl;
+        cout << "\n";
+        // cout << " " << name << "'s Bank Account" << endl;
+        cout << "Welcome to Your bank Account" << endl;
+        cout << "\nCurrent balance"<< endl;
+        cout << "$" << balance << "\n" << endl;
+        cout << "      |Menu|" << endl;
+        cout << "------------------" << endl;
         cout << "1. Check Balance" << endl;
         cout << "2. Deposit Money" << endl;
         cout << "3. Withdraw Money" << endl;
         cout << "4. Exit" << endl;
-        cout << "Enter your choice" << endl;
+        cout << "------------------" << endl;
+        cout << "Enter your choice: ";
         cin >> choice;
 //choices
-        switch (choice){
+        switch (choice)
+        {
             case 1:
                 checkBalance(balance);
             break;
@@ -91,46 +94,112 @@ int main (){
                 withdraw(balance);
             break;
             case 4:
-                cout << "Logging out of your Bank Account" << endl;
+            cout << "Logging out of your Bank Account" << endl;
             break;
+
             default:
-                cout << "Invalid choice. Please try again." << endl;
+            cout << "Invalid choice. Please try again." << endl;
+
             }
-        } while (choice != 4);
+        } while (choice !=4);
 
     return 0;
 
 }
 
-void writeBalanceFromFile(double balance) {
 
-
+//implement functions
+void writeBalanceToFile(double balance) {
+    ofstream file(fileName);
+    if (!file) {
+        cerr << "Error: Can't update file balance." << endl;
+    }
+    file << fixed << setprecision(2) << balance;
 }
 
 
+// Checking the balance
+void checkBalance(double balance) {
+    cout << "\n\nCurrent balance:$" << fixed << setprecision(2) << balance << endl;
+    cout << "--------------------------";
+}
 
 
+//Deposit into the account
+void deposit(double &balance) {
+    double userDeposit;
+    bool ask = true;
+    string choice;
+
+    while (ask) {
+        cout << "\nDeposit amount: $";
+        cin >> userDeposit;
+
+        // Invalid input checking
+        if (cin.fail() || userDeposit <=0) {
+            cout << "Invalid input" << endl;
+            cin.clear();
+            cin.ignore(1000, '\n');
+
+        } else {
+            balance += userDeposit;
+            writeBalanceToFile(balance);
+            cout << "your new balance: $" << fixed << setprecision(2) << balance << endl;
+
+            //deposit again
+            cout << "\nDeposit more?\n" << "Enter yes or no: ";
+            cin >> choice;
+
+            // 2nd deposit error checking
+            if (choice != "yes" && choice != "Yes" &&  choice != "YES") {
+                ask = (choice == "yes");
+                cout << "\n\n\n\nRETURNED TO MENU!!!";
+            }
+        }
+    }
+}
 
 
+//Withdraw from balance
+void withdraw(double &balance) {
+    double withDrawAmount;
+    bool ask = true;
+    string choice;
 
+    while (ask) {
+        cout << "\nHow much to withdrawl: $";
+        cin >> withDrawAmount;
 
+        // Invalid input checking
+        if (cin.fail()) {
+            cout << "Invalid input" << endl;
+            cin.clear();
+            cin.ignore(1000, '\n');
+            continue;
+        }
 
+        //Balance error check
+        if (withDrawAmount > balance || withDrawAmount < 0){
+            cout << "Insufficient Funds" << endl;
+            cout << "Current balance:$ " << balance << endl;
 
+        } else {
+            //writing deposit
+            balance -= withDrawAmount;
+            writeBalanceToFile(balance);
+            cout << "\nWithdrew: $" << fixed << setprecision(2) << withDrawAmount << endl;
+            cout << "Your new balance: $" << balance << endl;
 
+            //Another deposit
+            cout << "\nWithdraw more?" << endl;
+            cout << "Enter Yes or no:";
+            cin >> choice;
 
+            if (choice != "yes" && choice != "Yes" &&  choice != "YES") {
+                ask = (choice == "yes");
+                cout << "\n\n\n\nRETURNED TO MENU!!!" << endl;
+            }
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    }
+}
