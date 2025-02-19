@@ -70,7 +70,7 @@ private:
 public:
     connectFour() : board(rows, vector<char>(columns, ' ')), player('X'), state(gameState::onGoing) {}
 
-//Make the board
+    //Make the board
     void makeBoard() {
         cout << " 0 1 2 3 4 5 6 \n";
         cout << "---------------\n";
@@ -79,12 +79,12 @@ public:
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < columns; c++) {
                 cout << "|" << (board[r][c] == ' ' ? '_' : board[r][c]);
-                    }
+            }
             cout << "|\n";
         }
     }
 
-//Able to actually play
+    //Able to actually play
     void playTurn(int col) {
         for (int r = rows - 1; r >= 0; --r) {
             if (board[r][col] == ' ') {
@@ -92,33 +92,71 @@ public:
                 break;
             }
         }
-            makeBoard();
-            switchPlayer();
+        makeBoard();
+        switchPlayer();
 
     }
 
-//Swap players
+    //collecitng player inputs
+    int playerInputs() {
+        int col;
+        while (true){
+        cout << "Player " << player << ", choose a column (0-6): ";
+
+        if (cin >> col && col >= 0 && col < columns)
+            return col;
+
+            //Error checking when player plays
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Invalid input. Enter a column (0-6): ";
+        }
+
+    }
+
+    //Swap players
     void switchPlayer() {
         player = (player == 'X') ? 'O' : 'X';
     }
+    gameState gameStatus(){
+        cout << "test winner\n?";
 
+        if (fullBoard()) {
+            return gameState::draw;
+    }
+    return gameState::onGoing;
+}
+
+    /// win or lose logic ///
+
+
+    //check if the board is full or not
+    bool fullBoard() {
+        for (int c = 0; c < columns; c++) {
+            if (board[0][c] == ' ' ) return false;
+        }
+        return true;
+    }
+
+    //game logic
     void playGame() {
         rules();
-         makeBoard();
+        makeBoard();
 
-        while (true) {
-            int col;
-            cout << "Player " << player << ", choose a column (0-6): ";
-
-            while (!(cin >> col) || col < 0 || col >= columns) { //Error checking when player plays
-                cin.clear();
-                cin.ignore(10000, '\n');
-                cout << "Invalid input. Enter a column (0-6): ";
-            }
+        while (state == gameState::onGoing) {
+            int col = playerInputs();
             playTurn(col);
+            state = gameStatus();
+            if (state == gameState::draw) {
+                cout << "It's a draw! The board is full.\n";
+                break;
         }
         }
+    }
 };
+
+/// exit game///
+
 
 int main() {
     connectFour game;
