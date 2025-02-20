@@ -51,12 +51,12 @@ enum class gameState {onGoing,player1Wins,player2Wins,draw};
 // Prints game rules
 void rules() {
     cout << "\nWelcome to Connect 4! Here are the rules:\n";
+    cout << "Tip: Player 1 is always X" << endl;
     cout << "----------------------------------------------------\n";
     cout << "1. 2 Players take turns dropping one disc into an open slot at the top of the board.\n";
     cout << "2. The first player to get four discs in a row wins!\n";
     cout << "3. If the board fills up before either player wins, it's a draw.\n";
     cout << "Tip: You can use strategy to block opponents.\n";
-    cout << "Tip: Player 1 is always X" << endl;
     cout << "Let the odds forever be in your favor!\n\n";
 }
 
@@ -92,43 +92,51 @@ public:
                 break;
             }
         }
+        //checking a winner
         makeBoard();
-        switchPlayer();
-
+        state = gameStatus();
+        if (state == gameState::onGoing) {
+            switchPlayer();
+            return;
+        }
     }
 
     //collecitng player inputs
     int playerInputs() {
         int col;
-        while (true){
-        cout << "Player " << player << ", choose a column (0-6): ";
+        while (true) {
+            cout << "Player " << player << ", choose a column (0-6): ";
 
-        if (cin >> col && col >= 0 && col < columns)
-            return col;
+            if (cin >> col && col >= 0 && col < columns)
+                return col;
 
             //Error checking when player plays
             cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Invalid input. Enter a column (0-6): ";
+            if (!cin.fail()) {
+                cin.ignore(10000, '\n');
+                cout << "Invalid input. Enter a column (0-6): ";
+            }
         }
-
     }
+
 
     //Swap players
     void switchPlayer() {
         player = (player == 'X') ? 'O' : 'X';
     }
-    gameState gameStatus(){
-        cout << "test winner\n?";
+    gameState gameStatus() {
+        if (winner()) {
+            cout << "Player:" << player << " is the winner!!!!" << endl;
+            return(player == 'X') ? gameState::player2Wins : gameState::player1Wins;
+
+        }
 
         if (fullBoard()) {
+            cout << "It's a draw!, Board is full\n";
             return gameState::draw;
+        }
+        return gameState::onGoing;
     }
-    return gameState::onGoing;
-}
-
-    /// win or lose logic ///
-
 
     //check if the board is full or not
     bool fullBoard() {
@@ -138,28 +146,68 @@ public:
         return true;
     }
 
+    //checking if someone won
+    bool winner() {
+        bool winnerFound = false;
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < columns; c++) {
+                if (board[r][c] == ' ') {
+                    continue;
+                }
+
+
+                // horizontaal
+                if (c + 3 < columns && board[r][c] == board[r][c+1] && board[r][c] == board[r][c+2] && board[r][c] == board[r][c+3]) {
+                    winnerFound = true;
+                }
+                // vertcial
+                if (r + 3 < rows && board[r][c] == board[r+1][c] && board[r][c] == board[r + 2][c] && board[r][c] == board[r+3][c]) {
+                    winnerFound = true;
+                }
+                //diagonals down to bottom right
+                if (r + 3 < rows && c + 3 < columns && board[r][c] == board[r+1][c+1] && board[r][c] == board[r+2][c+2] && board[r][c] == board[r+3][c+3]) {
+                    winnerFound = true;
+                }
+                // bottom to top right
+                if (r - 3 >= 0 && c + 3 < columns && board[r][c] == board[r - 1][c+1] && board[r][c] == board[r-2][c+2] && board[r][c] == board[r-3][c+3]) {
+                    winnerFound = true;
+                    }
+                }
+            }
+        return winnerFound;
+        }
+
     //game logic
     void playGame() {
-        rules();
-        makeBoard();
+        char restart;
 
-        while (state == gameState::onGoing) {
-            int col = playerInputs();
-            playTurn(col);
-            state = gameStatus();
-            if (state == gameState::draw) {
-                cout << "It's a draw! The board is full.\n";
-                break;
-        }
-        }
+        do {
+            //reset the game
+            board.assign(rows, vector<char>(columns, ' '));
+            state = gameState::onGoing;
+            player = 'X';
+
+            rules();
+            makeBoard();
+
+            while (state == gameState::onGoing) {
+                int col = playerInputs();
+                playTurn(col);
+                state = gameStatus();
+            }
+            //ask to reset
+            cout << "Do you want to play again? (y/n): ";
+            cin >> restart;
+            cin.ignore(1000, '\n');
+
+        } while (restart == 'y' || restart == 'Y');
+
+        cout << "Exiting game!\n";
     }
 };
 
-/// exit game///
-
-
 int main() {
-    connectFour game;
-    game.playGame();
-    return 0;
-}
+        connectFour game;
+        game.playGame();
+        return 0;
+    }
