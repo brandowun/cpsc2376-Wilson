@@ -14,14 +14,15 @@ Otherwise, it uses int.
 
 using namespace std;
 
-template <typename T>
-T calculate(T a, T b, char op) {
+template <typename numType>
+numType calculate(numType num1, numType num2, char op) {
+
     switch (op) {
-        case '+': return a + b;
-        case '-': return a - b;
-        case '*': return a * b;
-        case '/': return a / b;
-        default: return 0;
+        case '+': return num1 + num2;
+        case '-': return num1 - num2;
+        case '*': return num1 * num2;
+        case '/': return num1 / num2;
+        return 0;
     }
 }
 
@@ -30,8 +31,29 @@ int main() {
     double num1, num2;
     char op;
 
-    cout <<"Enter first number: ";
-    cin >>num1;
+//user first number
+    cout << "Enter first number: ";
+    cin >> num1;
 
+    while(cin.fail()){
+        cout <<"Invalid input. Try again: ";
+        cin.clear();
+        cin.ignore(10000, '\n');
+
+        //THIS KEEPS SKIPPING
+        cout << "Enter first number again: ";
+        cin >> num1;
+    }
+// now pick the operator
+    cout << "Enter operation (+, -, *, /): ";
+    cin >> op;
+
+// now the second number
+    cout << "Enter second number: ";
+    cin >> num2;
+
+      cout << fixed << setprecision(2);
+      cout << "result: " << calculate(num1, num2, op) << endl;
     return 0;
+}
 }
