@@ -9,7 +9,7 @@ int main() {
 
     cout << "Enter how many numbers you want: " ;
     cin >> howMany;
-// need to add a number counter for users
+
     cout << "Enter "<< howMany << " integers: ";
     for (int i = 0; i < howMany; ++i) {
         cin >> inputNumber;
@@ -21,9 +21,15 @@ int main() {
     for (auto it = vectorNumbers.begin(); it != vectorNumbers.end(); ++it) {
         cout << *it << ", ";
     }
-    cout << "\nNumbers in reverse order: ";
-    for (auto it = vectorNumbers.rbegin(); it != vectorNumbers.rend(); ++it) {
-        cout << *it << ", ";
+
+// sum for even numbers
+    int sum = 0;
+    for (auto it =vectorNumbers.begin(); it != vectorNumbers.end(); ++it) {
+        if (*it % 2 == 0) {
+            sum += *it;
+        }
     }
+
+    cout << "Sum of even numbers: " << sum << endl;
     return 0;
 }
