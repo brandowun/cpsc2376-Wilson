@@ -1,6 +1,8 @@
 #ifndef FRACTION_H
 #define FRACTION_H
 
+#include <iostream>
+
 class Fraction {
 private:
     int numerator;
@@ -8,15 +10,25 @@ private:
     void simplify();
 
 public:
+//Construct
     Fraction();
     Fraction(int n, int d);
 
+//Get
     int getNumerator() const;
     int getDenominator() const;
 
+//Set
     void setNumerator(int n);
     void setDenominator(int d);
 
+//Overloading the operator
+    friend Fraction operator+(const Fraction& a, const Fraction& b);
+    friend Fraction operator-(const Fraction& a, const Fraction& b);
+    friend Fraction operator*(const Fraction& a, const Fraction& b);
+    friend Fraction operator/(const Fraction& a, const Fraction& b);
+
+    friend std::ostream& operator<<(std::ostream& out, const Fraction& fraction);
 };
 
 #endif
