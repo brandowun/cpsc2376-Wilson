@@ -1,5 +1,6 @@
 #include "Fraction.h"
 #include <iostream>
+#include "MixedFraction.h"
 
 using namespace std;
 

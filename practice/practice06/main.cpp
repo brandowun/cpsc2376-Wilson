@@ -1,34 +1,91 @@
 #include "Fraction.h"
+#include "MixedFraction.h"
 #include <iostream>
 
+
 using namespace std;
-//using chatgpt to help with the testing part, to make sure its working properly.
+
+
+void displayMenu() {
+        cout << "\nOptions:"<< endl;
+        cout << "1. Enter a fraction manually"<< endl;
+        cout << "2. Add a fraction"<< endl;
+        cout << "3. Subtract a fraction"<< endl;
+        cout << "4. Multiply by a fraction"<< endl;
+        cout << "5. Divide by a fraction"<< endl;
+        cout << "6. Display as Mixed Fraction"<< endl;
+        cout << "7. Clear Fraction"<< endl;
+        cout << "8. Exit"<< endl;
+        cout << "Enter your choice: "<< endl;
+}
+
+Fraction getFractionInput() {
+        int num, den;
+            cout << "Enter fraction (numerator denominator): ";
+            cin >> num >> den;
+
+        while (den == 0) {
+            cout << "Denominator cant be zero. Enter again: ";
+            cin >> den;
+    }
+    return Fraction(num, den);
+}
+
 int main() {
-    // Test default constructor
-    Fraction f1;
-    cout << "Default Fraction: " << f1.getNumerator() << "/" << f1.getDenominator() << endl; // Expected: 0/1
+    Fraction currentFraction(0, 1);
+    int choice;
 
-    // Test parameterized constructor
-    Fraction f2(4, 8);
-    cout << "Simplified Fraction: " << f2.getNumerator() << "/" << f2.getDenominator() << endl; // Expected: 1/2
 
-    // Test denominator == 0 case
-    Fraction f3(5, 0);
-    cout << "Handled Invalid Fraction: " << f3.getNumerator() << "/" << f3.getDenominator() << endl; // Expected: 5/1
+    do {
+        cout << "Current Fraction: " << currentFraction << endl;
+        displayMenu();
+        cin >> choice;
 
-    // testing the setters
-    f2.setNumerator(10);
-    f2.setDenominator(20);
-    cout << "Updated Fraction: " << f2.getNumerator() << "/" << f2.getDenominator() << endl; // Expected: 1/2
-// testing overload operators
-    Fraction f4(1,3);
-    Fraction f5(2, 6);
+        switch (choice) {
+            case 1:
+                currentFraction = getFractionInput();
+                break;
 
-    cout << "f3: " << f4 << "   f4: " << f5 << endl; // should show: 1/3
+            case 2:
+                currentFraction = currentFraction + getFractionInput();
+            break;
 
-    cout << "Addition: " << (f4 + f5) << endl;  // should show: 2/3
-    cout << "Subtraction: " << (f4 - f5) << endl;  //should show : 0/1
-    cout << "Multiplication: " << (f4 * f5) << endl;  //should show : 1/9
-    cout << "Division: " << (f4 / f5) << endl;  // should show: 1/1
-    return 0;
+            case 3:
+                currentFraction = currentFraction - getFractionInput();
+            break;
+
+            case 4:
+                currentFraction = currentFraction * getFractionInput();
+            break;
+
+            case 5:
+            {
+                Fraction divisor = getFractionInput();
+                if (divisor.getNumerator() == 0) {
+                    cout << "Cannot divide by zero. Try again.\n";
+                } else {
+                    currentFraction = currentFraction / divisor;
+                }
+            }
+            break;
+
+            case 6:
+                cout << "Mixed Fraction: " << MixedFraction(currentFraction) << endl;
+            break;
+
+            case 7:
+                currentFraction = Fraction(0, 1);
+                cout << "Fraction reset to 0/1.\n";
+            break;
+
+            case 8:
+                cout << "Exiting program.\n";
+            break;
+
+        default:
+        cout << "Invalid choice. Try again.\n";
+        }
+    } while (choice != 8);
+
+        return 0;
 }

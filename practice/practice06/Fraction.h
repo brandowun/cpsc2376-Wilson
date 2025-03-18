@@ -29,6 +29,8 @@ public:
     friend Fraction operator/(const Fraction& a, const Fraction& b);
 
     friend std::ostream& operator<<(std::ostream& out, const Fraction& fraction);
+
+    friend class MixedFraction;
 };
 
 #endif
