@@ -1,31 +1,86 @@
-//need to update where the boards message and viewing
+//shot should say if it's a hit or miss
+//should state how many ships left
 //Also need to account for more edge cases
-//need to display whose turn it is when choosing instead of making it an assumption
-
-
-
 
 //extras im thinking about
-// if P2P then be able to name player 1 and 2, to make it better or give them options(like real warship names)
-//different amount of ships or board sizes
-// i want to add an ai part where you can go against a bot(random)
 // maybe add a version with being able to just watch a game
 
 
 
 #include "battleship.h"
+#include <cstdlib>
+#include <ctime>
 using namespace std;
 
-int main() {
+void menu() {
+    cout << "=== Welcome to Battleship ==="<< endl;
+    cout << "1. Player vs Player"<< endl;
+    cout << "2. Player vs AI"<< endl;
+    cout << "3. Exit"<< endl;
+    cout << "Enter your choice: "<< endl;
+}
+
+void playerVSplayer() {
     Game game;
-    int  row, col;
+    int row, col;
 
     while (game.status() == ONGOING) {
-        cout <<game;
-        cout << "Enter attack coordinates (row col)(ex: 0 (space) 1 or 1 enter 2 enter: ";
-        cin  >>  row >> col;
-        game.play (row, col);
+        cout << game;
+        cout << (game.whoseTurn() ? "Player 1" : "Player 2") << "'s turn.\n";
+        cout << "Enter attack coordinates (row col): ";
+        cin >> row >> col;
+        game.play(row, col);
     }
 
-    cout << (game.status () == PLAYER_1_WINS ? "Player 1 Wins!" : "Player 2 Wins!");
+    cout << "Player " << game.whoseTurn() << "'s turn.\n";
+}
+
+void runPlayerVsAI() {
+    Game game;
+    int row, col;
+// Chat helped me with the A.I section since using ctime
+    while (game.status() == ONGOING) {
+        if (game.whoseTurn() == 1){
+            cout << game;
+            cout << "Your turn.\n";
+            cout << "Enter attack coordinates (row col): ";
+            cin >> row >> col;
+            cout << "You shot (" << row << ", " << col << ")";
+            game.play(row, col);
+        } else {
+            int aiRow, aiCol;
+            do {
+                aiRow = rand() % 10;
+                aiCol = rand() % 10;
+            } while (!game.isValidMove(aiRow, aiCol));
+
+            cout << "\nAI is attacking (" << aiRow << ", " << aiCol << ")\n";
+            game.play(aiRow, aiCol);
+        }
+    }
+
+    cout << game;
+    cout << "Player " << game.whoseTurn() << "'s turn.\n";
+}
+
+int main() {
+    //chatgpt helped getting the A.I setup since, i needed random time for different games then same type of random
+    srand(static_cast<unsigned>(time(0)));
+    int choice;
+
+    while (true) {
+        menu();
+        cin >> choice;
+
+        if (choice == 1) playerVSplayer();
+        else if (choice == 2) runPlayerVsAI();
+        else if (choice == 3) {
+            cout << "You have retreated!\n";
+            break;
+        } else {
+            cout << "Invalid choice. Try again.\n";
+        }
+    }
+
+    return 0;
 }

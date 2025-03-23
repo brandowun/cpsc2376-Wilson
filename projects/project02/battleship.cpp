@@ -13,6 +13,9 @@ Game::Game() : player1Turn(true) {
     player2Board[3][3] = SHIP;
     player2Board[4][4] = SHIP;
 }
+int Game::whoseTurn() const {
+    return player1Turn ? 1 : 2;
+}
 
 Status Game::status() const {
     bool player1ships = false, player2ships = false;
@@ -30,36 +33,68 @@ Status Game::status() const {
     return ONGOING;
 }
 
-void Game::play(int row, int col) {
-    if (row < 0 || row >= 10 || col < 0 || col >= 10) return; // Out of bounds
-
+string Game::play(int row, int col) {
+    if (row < 0 || row >= 10 || col < 0 || col >= 10) return "Out of bounds!";
     auto& board = player1Turn ? player2Board : player1Board;
 
-    if (board[row][col] == SHIP) board[row][col] = HIT;
-    else if (board[row][col] == EMPTY) board[row][col] = MISS;
+    string result;
+    if (board[row][col] == SHIP) {
+        board[row][col] = HIT;
+        result = "HIT!";
+    } else if (board[row][col] == EMPTY) {
+        board[row][col] = MISS;
+        result = "Missed.";
+    } else {
+        result = "Already targeted.";
+    }
 
     player1Turn = !player1Turn;
+    return result;
 }
 
+
 void Game::display() const {
-    const auto& board = player1Turn ? player2Board : player1Board;
-// Was struggling with the display, with the spacing so had help here.
-    cout << "  ";
-    for (int i = 0; i < 10; i++) cout << i << " ";
+    //helped with dispaly since altering it from top to bottom to now side by side
+    cout << "\n      Player 1 Board" << string(22, ' ') << "Player 2 Board\n";
+    cout << "   ";
+    for (int i = 0; i < 10; ++i) cout << i << " ";
+    cout << "     ";
+    for (int i = 0; i < 10; ++i) cout << i << " ";
     cout << "\n";
 
-    for (int r = 0; r < 10; r++) {
-        cout << r << " ";
-        for (int c = 0; c < 10; c++) {
-            if (board[r][c] == HIT) cout << "X ";
-            else if (board[r][c] == MISS) cout << "O ";
+    for (int r = 0; r < 10; ++r) {
+        cout << r << "  ";
+        for (int c = 0; c < 10; ++c) {
+            Cell cell = player1Board[r][c];
+            if (cell == SHIP) cout << "S ";
+            else if (cell == HIT) cout << "X ";
+            else if (cell == MISS) cout << "O ";
             else cout << ". ";
+        }
+
+        cout << "   ";
+
+        cout << r << "  ";
+        for (int c = 0; c < 10; ++c) {
+            Cell cell = player2Board[r][c];
+            if (cell == HIT) cout << "X ";
+            else if (cell == MISS) cout << "O ";
+            else cout << ". "; // Needed a way to hide ships
         }
         cout << "\n";
     }
 }
 
+
 ostream& operator<<(ostream& os, const Game& game) {
     game.display();
     return os;
+}
+
+bool Game::isValidMove(int row, int col) const {
+    if (row < 0 || row >= 10 || col < 0 || col >= 10)
+        return false;
+
+    const auto& board = player1Turn ? player2Board : player1Board;
+    return board[row][col] == EMPTY || board[row][col] == SHIP;
 }
