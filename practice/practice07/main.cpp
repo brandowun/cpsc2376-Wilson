@@ -1,90 +1,144 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <vector>
 #include <iomanip>
 
+
 using namespace std;
 
-class employee {
+class Employee {
 protected:
     string name;
     int id;
 
 public:
-    employee(string name, int id) : name(name), id(id) {}
-    virtual ~employee() {}
-    virtual double finalSalary() const = 0;
+    Employee(string name, int id) : name(name), id(id) {}
+    virtual ~Employee() {}
+    virtual double calculateSalary() const = 0;
 
-    virtual void display() const {
+    virtual void displayInfo() const {
         cout << "ID: " << id << ", Name: " << name;
     }
 };
 
-class salariedEmployee : public employee {
+class SalariedEmployee : public Employee {
 private:
     double monthlySalary;
 
 public:
-    salariedEmployee(string name, int id, double salary)
-        : employee(name, id), monthlySalary(salary) {}
+    SalariedEmployee(string name, int id, double salary)
+        : Employee(name, id), monthlySalary(salary) {}
 
-    double finalSalary() const override {
+    double calculateSalary() const override {
         return monthlySalary;
     }
 
-    void display()  const override {
-        employee::display();
+    void displayInfo()  const override {
+        Employee::displayInfo();
         cout << ", Type: Salaried,Monthly Salary: $" << fixed << setprecision(2)
-             << finalSalary()  << endl;
+             << calculateSalary()  << endl;
+    }
+};
+//hourly employee class
+class HourlyEmployee : public Employee {
+private:
+    double hourlyRate;
+    int hoursWorked;
+
+public:
+    HourlyEmployee(string name, int id, double rate, int hours)
+        : Employee(name, id), hourlyRate(rate), hoursWorked(hours) {}
+
+    double calculateSalary() const override {
+        return hourlyRate * hoursWorked;
+    }
+
+    void displayInfo() const override {
+        Employee::displayInfo();
+        cout << ", Type: Hourly, Hours Worked: " << hoursWorked << ", Hourly Rate: $" << fixed << setprecision(2) << hourlyRate << ", Salary: $" << calculateSalary() << endl;
     }
 };
 
-// just started setting this one up
-class hourlyEmployee : public employee {
+//commission emlpoyee class
+class CommissionEmployee : public Employee {
+private:
+    double baseSalary;
+    double salesAmount;
+    double commissionRate;
+
 public:
-    hourlyEmployee(string name, int id)
-        : employee(name, id) {}
+    CommissionEmployee(string name, int id, double base, double sales, double rate)
+        : Employee(name, id), baseSalary(base), salesAmount(sales), commissionRate(rate) {}
 
-    double finalSalary() const override {
-        return 0.0;//just to see if it runs
+    double calculateSalary() const override {
+        return baseSalary + (salesAmount * commissionRate);
     }
 
-    void display() const override {
-        employee::display();
-        cout<< ",Type: Hourly " << endl;
-    }
-};
-
-// just started setting this one up too
-class commissionEmployee : public employee {
-public:
-    commissionEmployee(string name, int id)
-    : employee(name, id) {}
-
-    double finalSalary() const override {
-        return 0.0; //again just to see if it runs
-    }
-
-    void display() const override {
-        employee::display();
-        cout << ", Type:mCommissionm" << endl;//why can't i get this to print
+    void displayInfo() const override {
+        Employee::displayInfo();
+        cout << ", Type: Commission, Base Salary: $" << fixed << setprecision(2)
+             << baseSalary << ", Sales: $" << salesAmount
+             << ", Commission Rate: " << commissionRate * 100 << "%, Salary: $"
+             << calculateSalary() << endl;
     }
 };
 
 int main() {
-    vector<employee*> employees;
+    vector<Employee*> employees;
+    ifstream file("employees.txt");
 
-    employees.push_back(new salariedEmployee("Alice", 101, 5000));
-    //employees.push_back(new hourlyEmployee
-    //employees.push_back(new commissionEmployee
-
-
-    for (employee* e : employees) {
-        e->display();
+//chatgpt, helped for file errors.
+    if (!file) {
+        cerr << "Error: Could not open employees.txt\n";
+        return 1;
     }
 
-    for (employee* e : employees) {
+    string line;
+    while (getline(file, line)) {
+        istringstream records(line);
+        string type, name;
+        int id;
+
+        records >> type >> id >> name;
+
+        if (type == "Salaried") {
+            double salary;
+
+            if (records >> salary) {
+                employees.push_back(new SalariedEmployee(name, id, salary));
+            }
+
+        } else if (type == "Hourly") {
+            double rate;
+            int hours;
+            if (records >> rate >> hours) {
+                employees.push_back(new HourlyEmployee(name, id, rate, hours));
+            }
+
+        } else if (type == "Commission") {
+            double base, sales, rate;
+            if (records >> base >> sales >> rate) {
+                employees.push_back(new CommissionEmployee(name, id, base, sales, rate));
+            }
+//chatgpt, helped with the error message,
+        } else {
+            cerr << "Warning: Unknown type '" << type << "'\n";
+        }
+    }
+
+    for (Employee* e : employees) {
+        e->displayInfo();
+    }
+
+    for (Employee* e : employees) {
         delete e;
     }
 
     return 0;
 }
+
+//example txt
+// Salaried 101 Alice 5000
+// Hourly 102 Bob 20 160
+// Commission 103 Charlie 2000 15000 0.05
