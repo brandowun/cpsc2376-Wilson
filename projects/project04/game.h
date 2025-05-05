@@ -23,5 +23,4 @@ public:
     Status status() const;
     void draw(SDL_Renderer* renderer);
 };
-
 #endif
