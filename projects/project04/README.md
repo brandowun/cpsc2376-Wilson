@@ -1,4 +1,6 @@
-﻿Project 04 – Battleship
+﻿Project 04 – Brandon Wilson
+
+## 🕹️ Description
 
 This is a 2-player (Player vs AI) turn-based Battleship game. 
 You will click on tiles to fire missiles at the enemy board. 
@@ -11,9 +13,12 @@ Ships
 3 length ships - 1 is 3 tall and 1 is 3 long
 2 length ships - 1 is 2 tall and 1 is 2 long
 
-The controls
- Left click anywhere on the enemy board (right side) to attack a tile
- Press the X to close the window when done
+## 🎮 Controls
+- Left click anywhere on the enemy board (right side) to attack a tile
+- Press the X to close the window when done
+- 
+- ## 🧪 Screenshot
+- ![Screenshot](screenshot.png)
 
  colors ident
  black - empty space
